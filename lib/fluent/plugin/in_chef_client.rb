@@ -36,8 +36,12 @@ module Fluent
         :client_key      => @client_key,
         :node_name       => @node_name,
       }
-      @ruby = ::File.join(::RbConfig::CONFIG["bindir"], ::RbConfig::CONFIG["ruby_install_name"])
-      @ruby = "ruby" unless ::File.executable?(@ruby)
+      ruby = ::File.join(::RbConfig::CONFIG["bindir"], ::RbConfig::CONFIG["ruby_install_name"])
+      if ::File.executable?(ruby)
+        @ruby = ruby
+      else
+        @ruby = "ruby"
+      end
     end
 
     def start
@@ -71,7 +75,7 @@ module Fluent
                 Engine.emit("#{@tag_prefix}.#{key}", now, {"value" => val})
               end
               if ::Numeric === data["ohai_time"]
-                Engine.emit("#{@tag_prefix}.behind_from", now, {"value" => now - data["ohai_time"]})
+                Engine.emit("#{@tag_prefix}.behind_seconds", now, {"value" => now - data["ohai_time"]})
               end
             else
               raise("invalid response from #{__FILE__.dump}")
