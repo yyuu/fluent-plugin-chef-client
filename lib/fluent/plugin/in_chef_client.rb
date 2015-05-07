@@ -20,7 +20,7 @@ module Fluent
     config_param :client_key, :string, :default => nil
     config_param :config_file, :string, :default => "/etc/chef/client.rb"
     config_param :node_name, :string, :default => nil
-    config_param :tag_prefix, :string, :default => "chef_client"
+    config_param :tag, :string, :default => "chef_client"
 
     def initialize
       super
@@ -72,10 +72,10 @@ module Fluent
             $log.debug("#{File.basename(__FILE__).dump} exits as #{$?.exitstatus}")
             if $?.exitstatus == 0
               data.each do |key, val|
-                Engine.emit("#{@tag_prefix}.#{key}", now, {"value" => val})
+                Engine.emit("#{@tag}.#{key}", now, {"value" => val})
               end
               if ::Numeric === data["ohai_time"]
-                Engine.emit("#{@tag_prefix}.behind_seconds", now, {"value" => now - data["ohai_time"]})
+                Engine.emit("#{@tag}.behind_seconds", now, {"value" => now - data["ohai_time"]})
               end
             else
               raise("invalid response from #{__FILE__.dump}")
